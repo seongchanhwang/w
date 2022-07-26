@@ -1,0 +1,1020 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- mapper DTD 선언 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.springbook.etc.mapper.EtcMapper">
+
+	<!--문의추가 -->
+	<insert id="insertAsk" parameterType="com.springbook.etc.vo.JoinAskVO">
+		INSERT INTO JOIN_ASK
+		(
+		company_nm, 
+		ceo_nm, 
+		business_num, 
+		company_phone_num, 
+		addr1, 
+		addr2, 
+		manager_nm,
+		file_id,
+		business_type,		
+		reg_date
+		)
+		VALUES
+		(
+		#{companyNm}, 
+		#{ceoNm}, 
+		#{businessNum}, 
+		#{companyPhoneNum},
+		#{addr1}, 
+		#{addr2}, 
+		#{managerNm},
+		#{fileId},
+		#{businessType},
+		now()		
+		)
+	</insert>
+
+	<!--문의전체개수 -->
+	<select id="inquiryListCount" resultType="int" parameterType="java.lang.String">
+		SELECT 
+		COUNT(*)
+		FROM
+		JOIN_ASK
+		WHERE 
+		DEL_YN = "N"
+		<if test= "keyword != null and !keyword.equals('')">
+    	AND	COMPANY_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+	</select>
+	
+	<!--키워드&페이징 포함 문의 -->
+	<select id="getInquiryList" resultType="com.springbook.etc.vo.JoinAskVO" parameterType="Map">
+		SELECT
+		*
+		FROM
+		JOIN_ASK LEFT OUTER JOIN FILE ON JOIN_ASK.FILE_ID = FILE.FILE_ID
+		WHERE 
+		JOIN_ASK.DEL_YN = 'N'
+		<if test= "keyword != null and !keyword.equals('')">
+    	AND	JOIN_ASK.COMPANY_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+   		ORDER BY JOIN_ASK.REG_DATE DESC
+		LIMIT #{i}, #{contentnum}
+	</select>
+	
+	<!--신규가입문의 상세보기 -->
+	<select id="getInquiryDetail" resultType="com.springbook.etc.vo.JoinAskVO" parameterType="java.lang.String">
+		SELECT
+		*
+		FROM
+		JOIN_ASK
+		WHERE 
+		DEL_YN = 'N'
+    	AND	IDX = #{idx}
+	</select>
+	
+	<!--신규가입문의 정보저장 -->
+	<update id="updateInquiry" parameterType="Map">
+		UPDATE
+		JOIN_ASK
+		SET INFO = #{info}
+    	WHERE IDX = #{idx}
+	</update>
+	
+	<!--제품명등록관리 전체 개수 -->
+	<select id="productListCount" resultType="int" parameterType="Map">
+		SELECT 
+		COUNT(*)
+		FROM
+	    PRODUCT
+		WHERE 
+		DEL_YN = 'N'
+		<if test= "keyword != null and keyword.equals('') and type.equals('product_nm')">
+    	AND	PRODUCT_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+		<if test= "keyword != null and !keyword.equals('') and type.equals('type')">
+    	AND	TYPE LIKE CONCAT("%",#{keyword},"%")
+   		</if>   
+	</select>
+	
+	<!--페이지&키워드 포함 제품명 등록관리조회 -->
+	<select id="getProductList" resultType="com.springbook.etc.vo.ProductVO" parameterType="Map">
+		SELECT
+		*
+		FROM
+		PRODUCT
+		WHERE 
+		DEL_YN = 'N'
+		<if test= "keyword != null and !keyword.equals('') and type.equals('productNm')">
+    	AND	PRODUCT_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+		<if test= "keyword != null and !keyword.equals('') and type.equals('type')">
+    	AND	TYPE LIKE CONCAT("%",#{keyword},"%")
+   		</if> 
+		LIMIT #{i}, #{contentnum}
+	</select>
+		
+	<!--제품타입추가 -->
+	<insert id="addProductType" parameterType="com.springbook.etc.vo.ProductVO">
+		INSERT INTO PRODUCT
+		(
+		product_nm, 
+		product_cd, 
+		type, 
+		file_id, 
+		file_nm,
+		reg_date
+		)
+		VALUES
+		(
+		#{productNm}, 
+		#{productCd}, 
+		#{type}, 
+		#{fileId},
+		#{fileNm},
+		now()		
+		)
+	</insert>
+	
+		<!--제품타입추가 -->
+	<update id="updateProductType" parameterType="com.springbook.etc.vo.ProductVO">
+		UPDATE
+		PRODUCT
+		SET product_nm = #{productNm},
+			product_cd = #{productCd},
+			type = #{type},
+			file_id = #{fileId},
+			file_nm = #{fileNm},
+			reg_date = now()
+    	WHERE PRODUCT_IDX = #{productIdx}
+	</update>
+	
+	<!--제품타입삭제 -->
+	<delete id="typeDelete" parameterType="java.lang.String">
+	    DELETE FROM PRODUCT
+	    WHERE
+        PRODUCT_IDX = ${list}
+	</delete>
+
+	<!--두께등록관리 전체 개수 -->
+	<select id="thicknessListCount" resultType="int" parameterType="Map">
+		SELECT 
+		COUNT(*)
+		FROM
+		PRODUCT_THICKNESS A
+		INNER JOIN PRODUCT B ON B.PRODUCT_IDX = A.PRODUCT_IDX
+		WHERE 
+		B.DEL_YN = 'N'
+		<if test= "keyword != null and keyword.equals('') and type.equals('productNm')">
+    	AND	B.PRODUCT_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+		<if test= "keyword != null and !keyword.equals('') and type.equals('thickness')">
+    	AND	A.THICKNESS LIKE CONCAT("%",#{keyword},"%")
+   		</if>   
+	</select>
+	
+	<!--페이지&키워드 포함 두께 등록관리조회 -->
+	<select id="getThicknessList" resultType="Map" parameterType="Map">
+		SELECT
+		A.*, B.PRODUCT_NM,C.ORIG_NM AS FILE_NM
+		FROM
+		PRODUCT_THICKNESS A
+		INNER JOIN PRODUCT B ON B.PRODUCT_IDX = A.PRODUCT_IDX
+		LEFT OUTER JOIN FILE C ON C.FILE_ID = A.FILE_ID
+		WHERE 
+		B.DEL_YN = 'N'
+		<if test= "keyword != null and !keyword.equals('') and type.equals('productNm')">
+    	AND	B.PRODUCT_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+		<if test= "keyword != null and !keyword.equals('') and type.equals('thickness')">
+    	AND	A.THICKNESS LIKE CONCAT("%",#{keyword},"%")
+   		</if> 
+		LIMIT #{i}, #{contentnum}
+	</select>
+	
+	<!--제품명등록관리 전체 개수 -->
+	<select id="getProductNameList" resultType="com.springbook.etc.vo.ProductVO">
+		SELECT 
+		*
+		FROM
+	    PRODUCT
+		WHERE 
+		DEL_YN = 'N'
+		ORDER BY REG_DATE ASC
+	</select>
+	
+	<!--제품명등록관리 전체 개수 -->
+	<select id="getProductNameListGroup" resultType="com.springbook.etc.vo.ProductVO">
+		SELECT 
+		*
+		FROM
+	    PRODUCT_DETAIL A INNER JOIN product B ON A.PRODUCT_IDX = B.PRODUCT_IDX
+		WHERE 
+		B.DEL_YN = 'N'
+		GROUP BY A.PRODUCT_IDX
+		ORDER BY B.REG_DATE ASC
+	</select>
+	
+	<!--제품두께중복확인 -->
+	<select id="checkProductThickness" parameterType="com.springbook.etc.vo.ProductThicknessVO" resultType="int">
+		SELECT COUNT(*) FROM PRODUCT_THICKNESS
+		WHERE PRODUCT_IDX = #{productIdx} AND THICKNESS = #{thickness}
+		<if test= "thicknessIdx != 0">
+    	AND	THICKNESS_IDX != #{thicknessIdx}
+   		</if>
+	</select>
+		
+	<!--제품두께추가 -->
+	<insert id="addProductThickness" parameterType="com.springbook.etc.vo.ProductThicknessVO">
+		INSERT INTO PRODUCT_THICKNESS
+		(
+		product_Idx, 
+		thickness, 
+		test_institute,
+		test_num, 
+		file_id,
+		custom_order,
+		reg_date
+		)
+		VALUES
+		(
+		#{productIdx}, 
+		#{thickness},
+		#{testInstitute}, 
+		#{testNum}, 
+		#{fileId},
+		#{customOrder},
+		now()		
+		)
+	</insert>
+
+	<!--제품두께업데이트 -->
+	<update id="updateProductThickness" parameterType="com.springbook.etc.vo.ProductThicknessVO">
+		UPDATE
+		PRODUCT_THICKNESS
+		SET product_idx = #{productIdx},
+			thickness = #{thickness},
+			test_institute = #{testInstitute},
+			test_num = #{testNum},
+			file_id = #{fileId},
+			custom_order = #{customOrder},
+			reg_date = now()
+    	WHERE THICKNESS_IDX = #{thicknessIdx}		
+	</update>
+		
+	<!--제품두께삭제 -->
+	<delete id="thicknessDelete" parameterType="java.lang.String">
+	    DELETE FROM PRODUCT_THICKNESS
+	    WHERE
+        THICKNESS_IDX = ${list}
+	</delete>
+	
+	<!--사이즈등록관리 전체 개수 -->
+	<select id="sizeListCount" resultType="int" parameterType="Map">
+		SELECT 
+		COUNT(*)
+		FROM
+		PRODUCT_SIZE A INNER JOIN PRODUCT C ON C.PRODUCT_IDX = A.PRODUCT_IDX
+		WHERE 
+		C.DEL_YN = 'N'
+		<if test= "keyword != null and keyword.equals('') and type.equals('productNm')">
+    	AND	C.PRODUCT_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+		<if test= "keyword != null and !keyword.equals('') and type.equals('size')">
+    	AND	A.SIZE LIKE CONCAT("%",#{keyword},"%")
+   		</if>   
+	</select>
+	
+	<!--페이지&키워드 포함 사이즈 등록관리조회 -->
+	<select id="getSizeList" resultType="Map" parameterType="Map">
+		SELECT
+		A.*, C.PRODUCT_NM AS PRODUCT_NM
+		FROM
+		PRODUCT_SIZE A INNER JOIN PRODUCT C ON C.PRODUCT_IDX = A.PRODUCT_IDX
+		WHERE 
+		C.DEL_YN = 'N'
+		<if test= "keyword != null and !keyword.equals('') and type.equals('productNm')">
+    	AND	C.PRODUCT_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+		<if test= "keyword != null and !keyword.equals('') and type.equals('size')">
+    	AND	A.SIZE LIKE CONCAT("%",#{keyword},"%")
+   		</if> 
+		LIMIT #{i}, #{contentnum}
+	</select>
+
+	<!--제품사이즈중복확인 -->
+	<select id="checkProductSize" parameterType="com.springbook.etc.vo.ProductSizeVO" resultType="int">
+		SELECT COUNT(*) FROM PRODUCT_SIZE
+		WHERE PRODUCT_IDX = #{productIdx} AND SIZE = #{size}
+	    <if test= "sizeIdx != 0">
+    	AND	SIZE_IDX != #{sizeIdx}
+   		</if>
+	</select>
+				
+	<!--제품사이즈추가 -->
+	<insert id="addProductSize" parameterType="com.springbook.etc.vo.ProductSizeVO">
+		INSERT INTO PRODUCT_SIZE
+		(
+		product_idx, 
+		size, 
+		height,
+		width,
+		custom_order,
+		reg_date
+		)
+		VALUES
+		(
+		#{productIdx}, 
+		#{size},
+		#{height}, 
+		#{width},
+		#{customOrder},
+		now()		
+		)
+	</insert>
+
+	<!--제품두께업데이트 -->
+	<update id="updateProductSize" parameterType="com.springbook.etc.vo.ProductSizeVO">
+		UPDATE
+		PRODUCT_SIZE
+		SET product_Idx = #{productIdx},
+			size = #{size},
+			height = #{height},
+			width = #{width},
+			custom_order = #{customOrder},
+			reg_date = now()
+    	WHERE SIZE_IDX = #{sizeIdx}		
+	</update>
+	
+	<!--제품사이즈삭제 -->
+	<delete id="sizeDelete" parameterType="java.lang.String">
+	    DELETE FROM PRODUCT_SIZE
+	    WHERE
+        SIZE_IDX = ${list}
+	</delete>
+	
+	<!--상세관리 전체 개수 -->
+	<select id="detailListCount" resultType="int" parameterType="Map">
+		SELECT
+		COUNT(*)
+		FROM
+		PRODUCT_DETAIL DETAIL
+			INNER JOIN PRODUCT_THICKNESS THICKNESS ON DETAIL.THICKNESS = THICKNESS.THICKNESS_IDX
+			INNER JOIN PRODUCT PRODUCT ON PRODUCT.PRODUCT_IDX = DETAIL.PRODUCT_IDX
+			INNER JOIN PRODUCT_SIZE SIZE ON SIZE.SIZE_IDX = DETAIL.SIZE
+		WHERE 
+		PRODUCT.DEL_YN = 'N'
+		<if test= "keyword != null and !keyword.equals('') and type.equals('productNm')">
+    	AND	PRODUCT.PRODUCT_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+		<if test= "keyword != null and !keyword.equals('') and type.equals('size')">
+    	AND	SIZE.SIZE LIKE CONCAT("%",#{keyword},"%")
+   		</if> 
+   		<if test= "keyword != null and !keyword.equals('') and type.equals('thickness')">
+    	AND	THICKNESS.THICKNESS LIKE CONCAT("%",#{keyword},"%")
+   		</if>   
+	</select>
+	
+	<!--페이지&키워드 포함 상세 등록관리조회 -->
+	<select id="getDetailList" resultType="Map" parameterType="Map">
+		SELECT
+		DETAIL.*, SIZE.HEIGHT, SIZE.WIDTH ,THICKNESS.THICKNESS AS THICKNESS_NM, PRODUCT.PRODUCT_NM, PRODUCT.PRODUCT_CD, SIZE.SIZE AS SIZE_NM
+		FROM
+		PRODUCT_DETAIL DETAIL
+			INNER JOIN PRODUCT_THICKNESS THICKNESS ON DETAIL.THICKNESS = THICKNESS.THICKNESS_IDX
+			INNER JOIN PRODUCT PRODUCT ON PRODUCT.PRODUCT_IDX = DETAIL.PRODUCT_IDX
+			INNER JOIN PRODUCT_SIZE SIZE ON SIZE.SIZE_IDX = DETAIL.SIZE
+		WHERE 
+		PRODUCT.DEL_YN = 'N'
+		<if test= "keyword != null and !keyword.equals('') and type.equals('productNm')">
+    	AND	PRODUCT.PRODUCT_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+		<if test= "keyword != null and !keyword.equals('') and type.equals('size')">
+    	AND	SIZE.SIZE LIKE CONCAT("%",#{keyword},"%")
+   		</if> 
+   		<if test= "keyword != null and !keyword.equals('') and type.equals('thickness')">
+    	AND	THICKNESS.THICKNESS LIKE CONCAT("%",#{keyword},"%")
+   		</if> 
+		LIMIT #{i}, #{contentnum}
+	</select>		
+	
+	<!--제품명에 따른 제품두께 조회 -->
+	<select id="selectDetailThickness" resultType="Map" parameterType="java.lang.String">
+		SELECT
+		THICKNESS.*
+		FROM
+		PRODUCT_DETAIL A INNER JOIN PRODUCT_THICKNESS THICKNESS ON A.THICKNESS = THICKNESS.THICKNESS_IDX AND A.THICKNESS = THICKNESS.THICKNESS_IDX
+		WHERE 
+		A.PRODUCT_IDX = #{name}
+		GROUP BY THICKNESS.THICKNESS
+	</select>
+	
+	<!--제품명에 따른 제품사이즈 조회 -->
+	<select id="selectDetailSize" resultType="Map" parameterType="java.lang.String">
+		SELECT
+		SIZE.*
+		FROM
+		PRODUCT_DETAIL A INNER JOIN PRODUCT_SIZE SIZE ON A.PRODUCT_IDX = SIZE.PRODUCT_IDX AND A.SIZE = SIZE.SIZE_IDX
+		WHERE 
+		A.PRODUCT_IDX = #{name}
+		GROUP BY SIZE.SIZE
+	</select>
+	
+	<!--제품 상세설정추가 -->
+	<insert id="addProductDetail" parameterType="com.springbook.etc.vo.ProductDetailVO">
+		INSERT INTO PRODUCT_DETAIL
+		(
+		product_idx,
+		thickness,
+		size,
+		safety,
+		pallet,
+		slice,
+		reg_date
+		)
+		VALUES
+		(
+		#{productIdx}, 
+		#{thickness},
+		#{size},
+		#{safety},
+		#{pallet},
+		#{slice},
+		now()		
+		)
+	</insert>
+
+	<!--제품 상세설정찾기 -->
+	<select id="findProductDetail"  resultType="com.springbook.etc.vo.ProductDetailVO" parameterType="com.springbook.etc.vo.ProductDetailVO">
+		SELECT * FROM PRODUCT_DETAIL
+		WHERE PRODUCT_IDX = #{productIdx}
+		AND THICKNESS = #{thickness}
+		AND SIZE = #{size}
+	</select>
+	
+	<!--제품 상세설정 수정 -->
+	<update id="updateProductDetail" parameterType="com.springbook.etc.vo.ProductDetailVO">
+		UPDATE
+		PRODUCT_DETAIL
+		SET product_idx = #{productIdx},
+			thickness = #{thickness},
+			size = #{size},
+			safety = #{safety},
+			pallet = #{pallet},
+			slice = #{slice},
+			reg_date = now()
+    	WHERE DETAIL_IDX = #{detailIdx}			
+	</update>
+	
+	<!--상세설정 삭제 -->
+	<delete id="detailDelete" parameterType="java.lang.String">
+	    DELETE FROM PRODUCT_DETAIL
+	    WHERE
+        DETAIL_IDX = ${list}
+	</delete>
+
+	<!--신규가입 새로운 문의 체크 -->
+	<update id="checkNew" parameterType="java.lang.String">
+		UPDATE
+		JOIN_ASK
+		SET CHECK_NEW = "1"
+    	WHERE IDX = #{idx}
+	</update>
+			
+	<!--창고 전체 개수 -->
+	<select id="warehouseListCount" resultType="int">
+		SELECT 
+		COUNT(*)
+		FROM
+	    WAREHOUSE
+		WHERE 
+		DEL_YN = 'N'
+	</select>
+
+	<!--창고 생성 개수 -->
+	<insert id="addWarehouse" parameterType="Map" >
+
+        INSERT INTO WAREHOUSE
+        (
+            warehouse, file_id, reg_date
+        )
+        VALUES
+        (
+            #{warehouse}, #{fileId}, now()
+        )
+	</insert>
+
+	<!--창고 정보 select -->
+	<select id="selectWarehouse" resultType="com.springbook.etc.vo.WarehouseVO" parameterType="Map">
+		SELECT
+		*
+		FROM
+		WAREHOUSE
+		WHERE FILE_ID = #{fileId} AND WAREHOUSE = #{warehouse}
+	</select>
+
+	<!--창고상세 수정 -->
+	<update id="updateWarehouse" parameterType="Map">
+		UPDATE WAREHOUSE
+		SET FILE_ID = #{fileId}, WAREHOUSE = #{warehouse}
+		WHERE WAREHOUSE_IDX = #{warehouseIdx}
+	</update>
+	
+	<!--페이지 포함 창고조회 -->
+	<select id="getWarehoseInfo" resultType="com.springbook.etc.vo.WarehouseVO" parameterType="java.lang.String">
+		SELECT
+		*
+		FROM
+		WAREHOUSE
+		WHERE WAREHOUSE_IDX = #{warehouseIdx}
+	</select>
+	
+	<!--csv 파일 DB warehouse_fee에 insert -->
+	<insert id="addWarehouseFee" parameterType="Map">
+		INSERT INTO WAREHOUSE_FEE(
+			WAREHOUSE_IDX, 
+			SIDO_NM,
+			SIGUNGU_NM,
+			EUBMYEONDONG_NM,
+			TON, 
+			FEE,
+			REG_DATE
+		)
+		VALUES
+		<foreach collection="insertFeeList" item="i" separator=",">
+		(
+			#{i.warehouseIdx},
+			#{i.SIDO_NM},
+			#{i.SIGUNGU_NM},
+			#{i.EUBMYEONDONG_NM},
+			#{i.ton},
+			#{i.fee},
+			now()
+			)
+		</foreach>
+	</insert>
+
+	<!--csv 기존파일 DB 삭제  -->
+	<delete id="deleteWarehouseFee" parameterType="java.lang.String">
+		DELETE FROM WAREHOUSE_FEE WHERE WAREHOUSE_IDX = #{warehouseIdx}
+	</delete>
+					
+	<!--페이지 포함 창고조회 -->
+	<select id="getWarehouseList" resultType="com.springbook.etc.vo.WarehouseVO" parameterType="Map">
+		SELECT
+		*
+		FROM
+		WAREHOUSE
+		WHERE DEL_YN = "N"
+		LIMIT #{i}, #{contentnum}
+	</select>
+
+	<!--창고삭제  -->
+	<update id="warehouseDelete" parameterType="java.lang.String">
+		UPDATE WAREHOUSE SET DEL_YN = "Y" WHERE WAREHOUSE_IDX = #{string}
+	</update>
+		
+	<!--창고 재고 반영 넣기 -->
+	<insert id="insertInventoryStock">
+	    INSERT INTO WAREHOUSE_STOCK
+		(
+		warehouse,
+		product_idx,
+		product_nm,
+		thickness,
+		size, 
+		stock,
+		reason,
+		reg_date
+		)
+		VALUES
+		(
+		#{warehouse}, 
+		#{productIdx}, 
+		#{productNm}, 
+		#{thickness},
+		#{size},
+		#{stock}, 
+		#{reason},
+		now()		
+		)
+	</insert>
+	
+	<!--창고 재고 반영 넣기 -->
+	<update id="updateInventoryStock">
+		UPDATE
+		WAREHOUSE_STOCK
+		SET STOCK = #{stock} , REASON = #{reason}, REG_DATE = now()
+    	WHERE
+		THICKNESS = #{thickness} AND
+		SIZE = #{size} AND
+		PRODUCT_Idx = #{productIdx} AND
+		WAREHOUSE = #{warehouse} AND
+		PRODUCT_NM = #{productNm}
+	</update>
+	
+	<!--페이지 포함 창고조회 -->
+	<select id="inventoryStockInfo" parameterType="Map" resultType="com.springbook.etc.vo.WarehouseStockVO">
+		SELECT
+		*
+		FROM
+		WAREHOUSE_STOCK
+		WHERE
+		THICKNESS = #{thickness} AND
+		SIZE = #{size} AND
+		PRODUCT_Idx = #{productIdx} AND
+		WAREHOUSE = #{warehouse}
+	</select>
+	
+	<!--창고 재고변경목록 넣기 -->
+	<insert id="insertInventoryInfo">
+	    INSERT INTO WAREHOUSE_inventory
+		(
+		warehouse_idx,
+		product_idx,
+		thickness,
+		size, 
+		stock,
+		reason,
+		gubun,
+		reg_date
+		)
+		VALUES
+		(
+		#{warehouseIdx}, 
+		#{productIdx},		
+		#{thickness},
+		#{size},
+		#{stock}, 
+		#{reason},
+		'1',
+		now()		
+		)
+	</insert>
+	
+	<!--단일 제품명-->
+	<select id="getProductInfo" parameterType="java.lang.String" resultType="com.springbook.etc.vo.ProductVO">
+		SELECT
+		*
+		FROM
+		PRODUCT
+		WHERE
+		PRODUCT_IDX = #{idx}
+	</select>
+	
+	<!--단일 두께정보조회-->
+	<select id="getThicknessInfo" parameterType="java.lang.String" resultType="Map">
+		SELECT
+		A.*,B.PRODUCT_NM
+		FROM
+		PRODUCT_THICKNESS AS A
+		INNER JOIN PRODUCT AS B ON A.PRODUCT_IDX =B.PRODUCT_IDX
+		WHERE
+		A.THICKNESS_IDX = #{idx}
+	</select>
+
+	<!--단일 사이즈정보조회-->
+	<select id="getSizeInfo" parameterType="java.lang.String" resultType="Map">
+		SELECT
+		A.*,B.PRODUCT_NM
+		FROM
+		PRODUCT_SIZE AS A
+		INNER JOIN PRODUCT AS B ON A.PRODUCT_IDX =B.PRODUCT_IDX
+		WHERE
+		A.SIZE_IDX = #{idx}
+	</select>
+		
+	<!--단일 상세설정조회-->
+	<select id="getDetailInfo" parameterType="java.lang.String" resultType="map">
+		SELECT
+		DETAIL.*, SIZE.HEIGHT, SIZE.WIDTH
+		FROM
+		PRODUCT_DETAIL DETAIL
+			INNER JOIN PRODUCT_THICKNESS THICKNESS ON DETAIL.THICKNESS = THICKNESS.THICKNESS_IDX
+			INNER JOIN PRODUCT PRODUCT ON PRODUCT.PRODUCT_IDX = DETAIL.PRODUCT_IDX
+			INNER JOIN PRODUCT_SIZE SIZE ON SIZE.SIZE_IDX = DETAIL.SIZE
+		WHERE
+		DETAIL_IDX = #{idx}
+	</select>
+	
+	<!--제품별상세설정 검색 개수 -->
+	<select id="safetyListCount" resultType="int" parameterType="java.lang.String">
+		SELECT
+		COUNT(*)
+		FROM
+		(
+		SELECT
+		COUNT(*)
+		FROM
+		PRODUCT_DETAIL A
+		INNER JOIN PRODUCT C ON C.PRODUCT_IDX = A.PRODUCT_IDX
+		INNER JOIN PRODUCT_THICKNESS B ON A.THICKNESS = B.THICKNESS_IDX
+		INNER JOIN PRODUCT_SIZE E ON E.SIZE_IDX = A.SIZE
+		LEFT OUTER JOIN WAREHOUSE_INVENTORY F ON F.PRODUCT_IDX = A.PRODUCT_IDX AND F.SIZE = A.SIZE AND F.THICKNESS = A.THICKNESS
+		WHERE
+		A.PRODUCT_IDX = #{productIdx}
+		GROUP BY A.PRODUCT_IDX
+		) AS RESULT		
+	</select>
+	
+	<!--제품별상세 포함 검색 페이징포함 -->
+	<select id="getSafetyList" resultType="Map" parameterType="Map">
+		SELECT
+		A.STOCK, C.PRODUCT_CD,C.PRODUCT_NM, C.PRODUCT_CD,A.SAFETY, A.SLICE, A.PRODUCT_IDX, E.SIZE,B.THICKNESS,C.PRODUCT_IDX, SUM(F.STOCK) AS TOTAL_STOCK,
+		A.PRODUCT_IDX
+		FROM
+		PRODUCT_DETAIL A
+		INNER JOIN PRODUCT C ON C.PRODUCT_IDX = A.PRODUCT_IDX
+		INNER JOIN PRODUCT_THICKNESS B ON A.THICKNESS = B.THICKNESS_IDX
+		INNER JOIN PRODUCT_SIZE E ON E.SIZE_IDX = A.SIZE
+		LEFT OUTER JOIN WAREHOUSE_INVENTORY F ON F.PRODUCT_IDX = A.PRODUCT_IDX AND F.SIZE = A.SIZE AND F.THICKNESS = A.THICKNESS
+		WHERE
+		A.PRODUCT_IDX = #{productIdx}
+		GROUP BY A.THICKNESS, A.SIZE
+		LIMIT #{i}, #{contentnum}
+	</select>
+	
+	<!--여신관리 개수조회-->
+	<select id="creditListCount" resultType="int" parameterType="Map">
+		SELECT 
+		COUNT(*)
+		FROM
+		DEPOSIT_HISTORY
+		<if test= "keyword != null and !keyword.equals('')">
+    	WHERE COMPANY_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+   		<if test= "keyword != null and !keyword.equals('') and !keyword.equals('') and startDt != null and !startDt.equals('') and endDt != null and !endDt.equals('')">
+    	AND DATE(DEP_DATE) BETWEEN #{startDt} AND #{endDt}
+   		</if>
+   		<if test= "keyword != null and keyword.equals('') and startDt != null and endDt != null">
+    	WHERE DATE(DEP_DATE) BETWEEN #{startDt} AND #{endDt}
+   		</if>
+	</select>
+	
+	<!--여신관리 페이징포함 조회 -->
+	<select id="getCreditList" resultType="Map" parameterType="Map">
+		SELECT T.SEQ,T.DEP_DATE,T.ID, DEP, T.COMPANY_NM, T.CREDIT_AMOUNT,T.IDX,
+		    SUM(T.DEP) OVER(PARTITION BY T.ID ORDER BY T.SEQ) AS TOTAL_DEP,
+		    SUM(T.OD) OVER(PARTITION BY T.ID ORDER BY T.SEQ) AS TOTAL_ORDER
+		FROM(
+		    SELECT 
+		        ROW_NUMBER() OVER() AS SEQ,
+		 member.CREDIT_AMOUNT, member.COMPANY_NM , member.ID,
+		       HISTORY.DEP_MOUNT AS DEP, HISTORY.DEP_DATE, HISTORY.IDX,
+		       HISTORY.ORDER_MOUNT AS OD
+					FROM
+				DEPOSIT_HISTORY HISTORY
+				INNER JOIN MEMBER MEMBER ON MEMBER.ID = HISTORY.MEMBER_ID
+		<if test= "keyword != null and !keyword.equals('')">
+    	WHERE MEMBER.COMPANY_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+   		<if test= "keyword != null and !keyword.equals('') and startDt != null and !startDt.equals('') and endDt != null and !endDt.equals('')">
+    	AND DATE(DEP_DATE) BETWEEN #{startDt} AND #{endDt}
+   		</if>
+   		<if test= "keyword != null and keyword.equals('') and startDt != null and endDt != null">
+    	WHERE DATE(DEP_DATE) BETWEEN #{startDt} AND #{endDt}
+   		</if>				
+		    GROUP BY HISTORY.IDX,MEMBER.ID
+			ORDER BY HISTORY.DEP_DATE DESC
+		) T
+		ORDER BY T.DEP_DATE DESC
+		LIMIT #{i}, #{contentnum}
+
+	</select>
+	
+	<!--입금등록 거래처 검색 -->
+	<select id="memberList" resultType="com.springbook.member.vo.MemberVO">
+		SELECT
+		*
+		FROM
+		MEMBER
+		WHERE 
+		DEL_YN = 'N' AND ROLE = '1'
+	</select>
+	
+	<!--창고별재고관리 전체 개수 -->
+	<select id="inventoryHistoryAllCount" resultType="int">
+		SELECT
+		COUNT(*)
+		FROM
+		WAREHOUSE_INVENTORY A
+		INNER JOIN PRODUCT_THICKNESS B ON A.THICKNESS = B.THICKNESS_IDX
+		INNER JOIN PRODUCT C ON C.PRODUCT_IDX = A.PRODUCT_IDX
+		INNER JOIN PRODUCT_SIZE D ON D.SIZE_IDX = A.SIZE
+		INNER JOIN WAREHOUSE E ON E.WAREHOUSE_IDX = A.WAREHOUSE_IDX
+		WHERE A.GUBUN = '1'
+	</select>
+
+	<!--창고별재관리 조건별 개수 -->
+	<select id="inventoryHistoryCount" resultType="int" parameterType="Map">
+		SELECT
+		COUNT(*)
+		FROM
+		WAREHOUSE_INVENTORY A
+		INNER JOIN PRODUCT_THICKNESS B ON A.THICKNESS = B.THICKNESS_IDX
+		INNER JOIN PRODUCT C ON C.PRODUCT_IDX = A.PRODUCT_IDX
+		INNER JOIN PRODUCT_SIZE D ON D.SIZE_IDX = A.SIZE
+		INNER JOIN WAREHOUSE E ON E.WAREHOUSE_IDX = A.WAREHOUSE_IDX
+		WHERE A.GUBUN = '1'
+		<if test= "!'null0'.equals(productIdx)">
+		AND C.PRODUCT_IDX= #{productIdx}
+		</if>
+		<if test= "'null0'.equals(productIdx) and !'null0'.equals(warehouseIdx)">
+		AND E.WAREHOUSE_IDX = #{warehouseIdx}
+		</if>
+		<if test= " !'null0'.equals(productIdx) and !'null0'.equals(warehouseIdx)">
+		AND E.WAREHOUSE_IDX = #{warehouseIdx}
+		</if>
+		<if test= "!'null0'.equals(size)">
+		AND  D.SIZE_IDX = #{size}
+		</if>
+		<if test= "!'null0'.equals(thickness)">
+		AND  B.THICKNESS_IDX = #{thickness}
+		</if>				
+	</select>
+		
+	<!--창고별재고관리 전체 목록 -->
+	<select id="getInventoryHistory" resultType="Map">
+		SELECT
+		A.REG_DATE, A.REASON, A.STOCK, C.PRODUCT_CD,B.THICKNESS,C.PRODUCT_NM,D.HEIGHT,D.WIDTH,D.SIZE,E.WAREHOUSE
+		FROM
+		WAREHOUSE_INVENTORY A
+		INNER JOIN PRODUCT_THICKNESS B ON A.THICKNESS = B.THICKNESS_IDX
+		INNER JOIN PRODUCT C ON C.PRODUCT_IDX = A.PRODUCT_IDX
+		INNER JOIN PRODUCT_SIZE D ON D.SIZE_IDX = A.SIZE
+		INNER JOIN WAREHOUSE E ON E.WAREHOUSE_IDX = A.WAREHOUSE_IDX
+		WHERE A.GUBUN = '1'
+		<if test= "!'null0'.equals(productIdx)">
+		AND C.PRODUCT_IDX = #{productIdx}
+		</if>
+		<if test= "'null0'.equals(productIdx) and !'null0'.equals(warehouseIdx)">
+		AND E.WAREHOUSE_IDX = #{warehouseIdx}
+		</if>
+		<if test= " !'null0'.equals(productIdx) and !'null0'.equals(warehouseIdx)">
+		AND E.WAREHOUSE_IDX = #{warehouseIdx}
+		</if>
+		<if test= "!'null0'.equals(size)">
+		AND  D.SIZE_IDX = #{size}
+		</if>
+		<if test= "!'null0'.equals(thickness)">
+		AND  B.THICKNESS_IDX = #{thickness}
+		</if>							    	  	
+		ORDER BY A.REG_DATE DESC
+		LIMIT #{i}, #{contentnum}
+	</select>
+
+	<!--창고별재고현황 조건별 개수 -->
+	<select id="inventoryStatusCount" resultType="int" parameterType="Map">
+		SELECT COUNT(*)
+		FROM
+		(SELECT
+		COUNT(*)
+		FROM
+		WAREHOUSE_INVENTORY A
+		INNER JOIN PRODUCT_THICKNESS B ON A.THICKNESS = B.THICKNESS_IDX
+		INNER JOIN PRODUCT C ON C.PRODUCT_IDX = A.PRODUCT_IDX
+		INNER JOIN PRODUCT_SIZE D ON D.SIZE_IDX = A.SIZE
+		INNER JOIN WAREHOUSE E ON E.WAREHOUSE_IDX = A.WAREHOUSE_IDX
+		INNER JOIN PRODUCT_DETAIL F ON F.PRODUCT_IDX = A.PRODUCT_IDX
+		WHERE
+		C.PRODUCT_NM = #{productNm} AND
+		E.WAREHOUSE_IDX = #{warehouseIdx}
+		GROUP BY E.WAREHOUSE_IDX, C.PRODUCT_CD,B.THICKNESS_IDX, D.SIZE_IDX
+		) AS RESULT
+	</select>
+		
+	<!--창고별재고현황 전체 목록 -->
+	<select id="getInventoryStatus" resultType="Map">
+		SELECT
+		A.REG_DATE, A.REASON, SUM(A.STOCK) AS TOTAL_STOCK, C.PRODUCT_CD,B.THICKNESS,C.PRODUCT_NM,D.HEIGHT,D.WIDTH,
+		D.SIZE,E.WAREHOUSE,E.WAREHOUSE_IDX, C.PRODUCT_CD,F.SAFETY, F.SLICE
+		FROM
+		WAREHOUSE_INVENTORY A
+		INNER JOIN PRODUCT_THICKNESS B ON A.THICKNESS = B.THICKNESS_IDX
+		INNER JOIN PRODUCT C ON C.PRODUCT_IDX = A.PRODUCT_IDX
+		INNER JOIN PRODUCT_SIZE D ON D.SIZE_IDX = A.SIZE
+		INNER JOIN WAREHOUSE E ON E.WAREHOUSE_IDX = A.WAREHOUSE_IDX
+		INNER JOIN PRODUCT_DETAIL F ON F.PRODUCT_IDX = A.PRODUCT_IDX AND F.THICKNESS = A.THICKNESS AND F.SIZE = A.SIZE
+		WHERE
+		C.PRODUCT_NM = #{productNm} AND
+		E.WAREHOUSE_IDX = #{warehouseIdx}
+		GROUP BY E.WAREHOUSE_IDX, C.PRODUCT_CD,B.THICKNESS_IDX, D.SIZE_IDX, F.DETAIL_IDX
+		LIMIT #{i}, #{contentnum}
+	</select>
+	
+	<!--창고별재고 조건없을때목록 -->
+	<select id="getInventoryHistoryAll" resultType="Map">
+		SELECT
+		A.REG_DATE, A.REASON, A.STOCK, A.PRODUCT_IDX,C.PRODUCT_CD,B.THICKNESS,C.PRODUCT_NM,D.HEIGHT,D.WIDTH,D.SIZE,E.WAREHOUSE
+		FROM
+		WAREHOUSE_INVENTORY A
+		INNER JOIN PRODUCT_THICKNESS B ON A.THICKNESS = B.THICKNESS_IDX
+		INNER JOIN PRODUCT C ON C.PRODUCT_IDX = A.PRODUCT_IDX
+		INNER JOIN PRODUCT_SIZE D ON D.SIZE_IDX = A.SIZE
+		INNER JOIN WAREHOUSE E ON E.WAREHOUSE_IDX = A.WAREHOUSE_IDX
+		WHERE A.GUBUN = '1'		
+		ORDER BY A.REG_DATE DESC
+		LIMIT #{i}, #{contentnum}
+	</select>	
+	
+	<!--거래처검색 개수-->
+	<select id="selectCompanyCount" resultType="int" parameterType="java.lang.String">
+		SELECT 
+		COUNT(*)
+		FROM
+		MEMBER
+		WHERE ROLE = '1' 
+		<if test= "keyword != null and !keyword.equals('')">
+    	AND COMPANY_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+	</select>
+	
+	<!--거래처 검색 결과-->
+	<select id="getSelectCompany" resultType="com.springbook.member.vo.MemberVO" parameterType="Map">
+		SELECT
+		*
+		FROM
+		MEMBER
+		WHERE ROLE = '1' 
+		<if test= "keyword != null and !keyword.equals('')">
+    	AND COMPANY_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+   		LIMIT #{i}, #{contentnum}
+	</select>
+
+	<!--회사 재정정보 검색 결과-->
+	<select id="searchCreditInfo" resultType="Map" parameterType="java.lang.String">
+		SELECT
+		SUM(HISTORY.DEP_MOUNT) AS TOTAL_DEP, SUM(HISTORY.ORDER_MOUNT) AS TOTAL_ORDER, member.CREDIT_AMOUNT, member.COMPANY_NM , member.id
+		FROM
+		DEPOSIT_HISTORY HISTORY
+		INNER JOIN MEMBER MEMBER ON MEMBER.ID = HISTORY.MEMBER_ID
+		WHERE MEMBER.ID = #{keyword}
+		GROUP BY MEMBER.ID
+	</select>
+	
+	<!--여신목록등록 -->
+	<insert id="addDepositHistory">
+	    INSERT INTO DEPOSIT_HISTORY
+		(
+		member_id,
+		dep_date, 
+		dep_mount,
+		order_mount,
+		reg_date
+		)
+		VALUES
+		(
+		#{companyNm},	
+		#{depDate},
+		#{depAmount},
+		0,
+		now()		
+		)
+	</insert>
+	
+	<!--입금액 업로드 -->
+	<update id="updateTotalDeposit">
+		UPDATE
+		CLIENT_MONEY_INFO
+		SET TOTAL_DEPOSIT = #{updateDepositInfo}
+    	WHERE
+		COMPANY_NM = #{companyNm}
+	</update>
+	
+	<!--여신관리삭제 -->
+	<delete id="historyDelete" parameterType="java.lang.String">
+	    DELETE FROM DEPOSIT_HISTORY
+	    WHERE
+        IDX = ${list}
+	</delete>
+	
+	<!--여신관리 수정페이지 들어가기 -->
+	<select id="searchDepositInfo" resultType="map" parameterType="java.lang.String">
+		SELECT 
+		HISTORY.*, MEMBER.CREDIT_AMOUNT
+		FROM
+		DEPOSIT_HISTORY HISTORY
+		INNER JOIN MEMBER MEMBER ON MEMBER.ID = HISTORY.MEMBER_ID
+		WHERE 
+		HISTORY.IDX = #{idx}
+	</select>
+	
+	<!--입금액 업로드 -->
+	<update id="updateDepositHistory">
+		UPDATE
+		DEPOSIT_HISTORY
+		SET DEP_DATE = #{depDate} , DEP_MOUNT = #{depAmount} WHERE IDX = #{idx}
+	</update>
+	
+		<!--여신관리 수정페이지 들어가기 -->
+	<select id="memberInfoDeposit" resultType="map" parameterType="java.lang.String">
+		SELECT 
+		ID,COMPANY_NM, CREDIT_AMOUNT
+		FROM
+		MEMBER
+		WHERE 
+		ID = #{keyword}
+	</select>
+</mapper>

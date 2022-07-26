@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- mapper DTD 선언 -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.springbook.member.mapper.MemberMapper">
+
+	<!-- 아이디중복검사 -->
+	<select id="getId" parameterType="java.lang.String" resultType="int">
+		SELECT 
+			COUNT(*) 
+		FROM MEMBER 
+			WHERE 
+			ID = #{id}
+	</select>
+	
+	<!-- 회원추가 -->
+	<insert id="insertMember" parameterType="com.springbook.member.vo.MemberVO">
+		INSERT INTO MEMBER
+		(
+		id, 
+		password, 
+		company_nm, 
+		ceo_nm, 
+		business_num, 
+		company_phone_num, 
+		role, 
+		fax_num, 
+		addr1, 
+		addr2, 
+		manager_nm, 
+		manager_num, 
+		email1,
+		email2,
+		email3,
+		file_id, 
+		income_message, 
+		credit_amount,
+		special_message,
+		maker,
+		warehouse,
+		reg_date
+		)
+		VALUES
+		(
+		#{id}, 
+		#{password}, 
+		#{companyNm}, 
+		#{ceoNm}, 
+		#{businessNum}, 
+		#{companyPhoneNum}, 
+		#{role}, 
+		#{faxNum}, 
+		#{addr1}, 
+		#{addr2}, 
+		#{managerNm}, 
+		#{managerNum}, 
+		#{email1}, 
+		#{email2}, 
+		#{email3}, 
+		#{fileId}, 
+		#{incomeMessage}, 
+		#{creditAmount},
+		#{specialMessage},
+		#{maker},
+		#{warehouse},
+		now()		
+		)
+		ON DUPLICATE KEY
+		UPDATE
+		id = #{id},
+	    company_nm = #{companyNm},
+		ceo_nm = #{ceoNm},  
+		business_num = #{businessNum},
+		company_phone_num = #{companyPhoneNum},
+		role = #{role},
+		fax_num= #{faxNum},
+		addr1 = #{addr1}, 
+		addr2 = #{addr2}, 
+		manager_nm = #{managerNm},
+		manager_num = #{managerNum},
+		email1 = #{email1},
+		email2 = #{email2},
+		email3 = #{email3},
+		file_id = #{fileId}, 
+		income_message = #{incomeMessage}, 
+		credit_amount = #{creditAmount},
+		special_message = #{specialMessage},
+		maker = #{maker},
+		warehouse = #{warehouse},
+		reg_date = now()	
+		
+	</insert>
+	
+	<!-- 로그인 -->
+	<select id="tryLogin" parameterType="com.springbook.member.vo.MemberVO" resultType="com.springbook.member.vo.MemberVO">
+	 	SELECT 
+			*
+		FROM 
+			(SELECT *, CONCAT(EMAIL1,'@',EMAIL2) as EMAIL_1, CONCAT(EMAIL1,'@',EMAIL3) as EMAIL_2 FROM MEMBER) I	
+		WHERE
+			DEL_YN = 'N'
+			AND  
+			(I.ID = #{id} AND PASSWORD = #{password} )
+			OR
+			(I.EMAIL_1 = #{id} AND PASSWORD = #{password} )
+			OR
+			(I.EMAIL_2 = #{id} AND PASSWORD = #{password} )
+	</select>
+
+	<!--회원관리 전체 개수 -->
+	<select id="memberListCount" resultType="int" parameterType="Map">
+		SELECT 
+		COUNT(*)
+		FROM
+		MEMBER
+		WHERE 
+		DEL_YN = 'N'
+		<if test= "keyword != null and keyword.equals('') and type.equals('id')">
+    	AND	ID = #{keyword}
+   		</if>
+		<if test= "keyword != null and !keyword.equals('') and type.equals('company_nm')">
+    	AND	COMPANY_NM = #{keyword}
+   		</if>   
+	</select>
+	
+	<!--페이지&키워드 포함 회원조회 -->
+	<select id="getMemberList" resultType="com.springbook.member.vo.MemberVO" parameterType="Map">
+		SELECT
+		*
+		FROM
+		MEMBER
+		WHERE 
+		DEL_YN = 'N'
+		<if test= "keyword != null and !keyword.equals('') and type.equals('id')">
+    	AND	ID LIKE CONCAT("%",#{keyword},"%")
+   		</if>
+		<if test= "keyword != null and !keyword.equals('') and type.equals('company_nm')">
+    	AND	COMPANY_NM LIKE CONCAT("%",#{keyword},"%")
+   		</if>   
+		LIMIT #{i}, #{contentnum}
+	</select>
+
+	<select id="getMemberInfo" resultType="com.springbook.member.vo.MemberVO" parameterType="java.lang.String">
+		SELECT
+		*
+		FROM
+		MEMBER
+		WHERE 
+		DEL_YN = 'N'
+    	AND	ID = #{id}
+	</select>
+	
+	<select id="getProductNameList" resultType="String">
+		SELECT
+		PRODUCT_NM
+		FROM
+		PRODUCT
+		WHERE 
+		DEL_YN = 'N'
+	</select>
+	
+	<select id="typeProductListCount" resultType="int" parameterType="java.lang.String">
+		SELECT
+		COUNT(*)
+		FROM
+		PRODUCT_DETAIL A 
+			INNER JOIN PRODUCT_THICKNESS B ON B.THICKNESS_IDX = A.THICKNESS
+			INNER JOIN PRODUCT C ON C.PRODUCT_IDX = A.PRODUCT_IDX
+			INNER JOIN PRODUCT_SIZE D ON D.SIZE_IDX = A.SIZE
+		WHERE
+		A.DEL_YN = 'N'
+		<if test= "keyword != null and !keyword.equals('')">
+    	AND	C.PRODUCT_NM = #{keyword}
+   		</if>
+	</select>
+	
+	<!--페이지&키워드 포함 회원조회 -->
+	<select id="getTypeProductList" resultType="Map" parameterType="Map">
+		SELECT
+		C.PRODUCT_NM,D.SIZE_IDX,D.SIZE AS SIZE, D.HEIGHT, D.WIDTH, B.THICKNESS, B.THICKNESS_IDX, C.PRODUCT_IDX, C.PRODUCT_CD
+		FROM
+		PRODUCT_DETAIL A 
+			INNER JOIN PRODUCT_THICKNESS B ON B.THICKNESS_IDX = A.THICKNESS
+			INNER JOIN PRODUCT C ON C.PRODUCT_IDX = A.PRODUCT_IDX
+			INNER JOIN PRODUCT_SIZE D ON D.SIZE_IDX = A.SIZE
+		WHERE
+		A.DEL_YN = 'N'
+ 		<if test= "keyword != null and !keyword.equals('')">
+    	AND	C.PRODUCT_NM = #{keyword}
+   		</if>
+		LIMIT #{i}, #{contentnum}
+	</select>
+	
+	<!--멤버별가격 추가 -->
+	<insert id="addPrice" parameterType="Map">
+		INSERT INTO PRICE
+		(
+		id,
+		product_Idx,
+		thickness,
+		size,
+		price,
+		used
+		)
+		VALUES
+		(
+		#{id}, 
+		#{productIdx}, 
+		#{thicknessIdx}, 
+		#{sizeIdx}, 
+		#{price}, 
+		#{use}	
+		)
+	</insert>
+	
+	<!--멤버 삭제 -->
+	<delete id="memberDelete" parameterType="java.lang.String">
+	    DELETE FROM MEMBER
+	    WHERE
+        ID = #{string}
+	</delete>
+	
+	<!--여신정보 초기등록 -->
+	<insert id="initMoneyInfo">
+	    INSERT INTO CLIENT_MONEY_INFO
+		(
+		company_nm
+		)
+		VALUES
+		(
+		#{companyNm}	
+		)
+		ON DUPLICATE KEY
+		UPDATE
+	    company_nm = #{companyNm}
+	</insert>
+
+	<!--여신관리 단가설정 중복확인 -->
+	<select id="selectPrice" resultType ="int" parameterType="Map">
+		SELECT
+		COUNT(*)
+		FROM
+		PRICE PRICE
+		INNER JOIN PRODUCT PRODUCT ON PRODUCT.PRODUCT_IDX = PRICE.PRODUCT_IDX
+		WHERE  
+		PRODUCT.DEL_YN = 'N'
+    	AND	PRICE.PRODUCT_IDX = #{productIdx}
+    	AND	PRICE.THICKNESS = #{thicknessIdx}
+    	AND	PRICE.SIZE = #{sizeIdx}
+    	AND	PRICE.ID = #{id}
+	</select>
+	
+	<!--멤버별가격 수청 -->
+	<update id="updatePrice" parameterType="Map">
+		UPDATE PRICE SET
+		PRICE = #{price}, USED = #{use}
+    	WHERE ID = #{id} AND product_idx = #{productIdx} AND thickness = #{thicknessIdx} AND size = #{sizeIdx}
+	</update>
+
+	<!-- 이메일 조회 -->
+	<select id="findMemberById" parameterType="String" resultType="com.springbook.member.vo.MemberVO">
+		SELECT 
+			ID,
+			EMAIL1,
+			EMAIL2
+		FROM	
+			MEMBER  
+		WHERE
+			1=1  
+			AND ( ID = #{userId} OR CONCAT(EMAIL1,'@',EMAIL2) = #{userId})   
+			
+	</select>
+	<!-- <select id="findMemberByEmail" parameterType="String" resultType="com.springbook.member.vo.MemberVO">
+		SELECT 
+			ID,
+			EMAIL1,
+			EMAIL2
+		FROM	
+			MEMBER  
+		WHERE 
+			CONCAT(EMAIL1,'@',EMAIL2) = #{email}
+	</select> -->
+	
+	<update id="modfiyPassword" parameterType="com.springbook.member.vo.MemberVO">
+		UPDATE 
+			MEMBER 
+		SET 
+			PASSWORD = #{password}
+		WHERE
+			ID = #{id} 
+	</update>
+</mapper>
