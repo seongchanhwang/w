@@ -1,3 +1,12 @@
+function logout(){
+	console.log('로그아웃');
+	let f = document.createElement('form');
+	f.setAttribute('method','post');
+	f.setAttribute('action','/logout.do');
+	document.body.appendChild(f);
+	f.submit();
+}
+
 function detailSearch(){
 	var	type = $("#search_item").val();
 	var keyword = $("#keyword").val();
@@ -7,6 +16,7 @@ function detailSearch(){
 
 //가격설정 팝업
 function goPrice(){
+	var id = $("#id").val();
 	window.open("priceSetting.do?id="+encodeURI(id),"제품별 단가설정","width=1450, height=800");
 }
 
@@ -17,11 +27,12 @@ function changeProduct(product){
 		div.classList.add("on");
 		div = document.getElementsByClassName("bbs mt17 tab-box on")[0];
 	var tableDiv = $("tbody").empty();
+	var id = $("#id").val();
 	
 	  var keyword = keyword;
 		$.ajax({
 			url: "choicePriceSetting.do",
-			data: {"keyword" : product},
+			data: {"keyword" : product,"id":id},
 			type: "POST",
 		    dataType:"json",
 		    traditional:true,
@@ -30,7 +41,7 @@ function changeProduct(product){
 				if(data.list.length > 0 ){
 					drawTable(data);
 				} else {
-					alert("해당제품의 두꼐와 사이즈가 생성되있지 않습니다.");
+					alert("해당제품의 상세설정을 해주세요.");
 				}
 			},
 			error : function(){
@@ -42,6 +53,7 @@ function changeProduct(product){
 //탭메뉴 결과테이블 그리기
 function drawTable(data){
 //	$("div.")
+	console.dir(data);
 	var keyword = data.list[0].PRODUCT_NM;
 	var div = document.getElementsByClassName("bbs mt17 tab-box")[0];
 		div.classList.add("on");
@@ -53,14 +65,14 @@ function drawTable(data){
 		var tr = '<tr class="'+data.list[i].PRODUCT_NM+'" name="'+data.list[i].PRODUCT_NM+'">';
 		var td1= '<td><input type="checkbox" name="chk" value="Y">';
 		td1 += '<input type="hidden" name="productIdx" value='+data.list[i].PRODUCT_IDX+'></td>';
-		td1 += '<input type="hidden" name="thickness" value='+data.list[i].THICKNESS_IDX+'></td>';
-		td1 += '<input type="hidden" name="size" value='+data.list[i].SIZE_IDX+'></td>';
+		td1 += '<input type="hidden" name="thicknessIdx" value='+data.list[i].THICKNESS_IDX+'></td>';
+		td1 += '<input type="hidden" name="sizeIdx" value='+data.list[i].SIZE_IDX+'></td>';
 		td1 += '<input type="hidden" name="height" value='+data.list[i].HEIGHT+'></td>';
 		td1 += '<input type="hidden" name="width" value='+data.list[i].WIDTH+'></td>';
 		td1 += '<td>'+data.list[i].THICKNESS+ data.list[i].SIZE+'-'+data.list[i].PRODUCT_CD+'</td>'; 
 		td1 += '<td>'+data.list[i].THICKNESS+'</td>'; 
 		td1 +='<td> '+ data.list[i].SIZE+ ' ('+data.list[i].HEIGHT +'x'+data.list[i].WIDTH+')</td>'; 
-		td1 += '<td><input type="text" class="wd100 txt-right" placeholder="0" name="price"> </td>'; 
+		td1 += '<td><input type="text" class="wd100 txt-right" placeholder="0" name="price" value='+data.list[i].PRICE+'> </td>'; 
 		 $("tbody").append(tr+td1+"</tr>");
 	}
 	
@@ -129,8 +141,8 @@ function savePrice(){
 	var table = $(".bbs.mt17.tab-box.on tbody tr");
 
 	var a = $("bbs.mt17.tab-box.on input[name=productVal]").val();
-console.log(a);
-	console.log(table);
+
+
 	var priceLength = $("input[name=price]").length;
 	for(var i=0; i<table.length; i++){
 		console.log($(".bbs.mt17.tab-box.on tbody tr").children().eq(i).text());
@@ -152,10 +164,11 @@ console.log(a);
         object.productIdx = $(".bbs.mt17.tab-box.on tbody tr input[name=productIdx]").eq(i).val();
         object.thicknessIdx =  $(".bbs.mt17.tab-box.on tbody tr input[name=thicknessIdx]").eq(i).val();
         object.sizeIdx =  $(".bbs.mt17.tab-box.on tbody tr input[name=sizeIdx]").eq(i).val();
-        object.priceIdx =  $(".bbs.mt17.tab-box.on tbody tr input[name=price]").eq(i).val();
+        object.price =  $(".bbs.mt17.tab-box.on tbody tr input[name=price]").eq(i).val();
 		object.id = parentId;
 		object.use = checkVal;
 		arr.push(object);
+		console.log(object);
 
     }
 

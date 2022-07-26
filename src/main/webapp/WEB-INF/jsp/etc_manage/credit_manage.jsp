@@ -49,7 +49,6 @@
 					<li class="uk-parent">
 						<a href="220_order_manage.html">주문관리 </a>
 						<ul class="uk-nav-sub" hidden="">
-							<li><a onclick="location.href='goOrderManage.do'">- 재고조회</a></li>
 							<li><a href="#">- 주문현황</a></li>
 							<li><a href="#">- 직송현황</a></li>
 							<li><a href="#">- 예약내역</a></li>
@@ -70,7 +69,7 @@
 					<li class="uk-parent uk-open">
 						<a href="240_etc_manage.html">기타관리</a>
 						<ul class="uk-nav-sub" hidden="">
-							<li><a href="240_etc_manage.html">- 준공서류 관리</a></li>
+							<li><a onclick="location.href='goEtcManage.do'"">- 준공서류 관리</a></li>
 							<li><a href="241_all_warehouse.html">- 전체 출/입고 현황</a></li>
 							<li><a onclick="location.href='warehouseManage.do'">- 창고관리</a></li>		
 							<li><a onclick="location.href='goInvetoryManage.do'">- 창고별 재고관리</a></li>
@@ -158,6 +157,10 @@
 							</c:forEach>						
 							</tbody>
 						</table>
+						<!-- excel-down form -->
+						<form id="excel-down-form" >
+							<input type="hidden" id="jsonData" name="jsonData" value="">
+						</form>
 
 						<!-- pager -->
 						<div class="pager txt-right">

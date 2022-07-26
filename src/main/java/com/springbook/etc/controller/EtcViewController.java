@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.springbook.etc.service.EtcService;
 import com.springbook.etc.vo.*;
+import com.springbook.service.CommonService;
 import com.springbook.service.FileService;
 import com.springbook.vo.FileVO;
+import com.springbook.vo.JusoVO;
 
 @Controller
 public class EtcViewController {
@@ -22,6 +24,8 @@ public class EtcViewController {
 	private EtcService etcService;
 	@Autowired
 	private FileService fileService;
+	@Autowired
+	private CommonService commonService;
 	
 	@Autowired(required = false)
 	private PasswordEncoder encoder;
@@ -44,5 +48,21 @@ public class EtcViewController {
 		
 		return "/etc_manage/type_regist";
 	}
+	
+	@GetMapping(value= "/goEtcManage.do")
+	public String goEtcManage(Model model, String idx, String fileId) {
+		List<JusoVO> sidoList = null;
+		try {
+			sidoList = commonService.getSido();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		model.addAttribute("sidoList", sidoList);
+
+		return "/etc_manage/etc_manage";
+	}	
+	
 
 }

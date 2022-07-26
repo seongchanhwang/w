@@ -19,7 +19,18 @@
 	<script src="../../../js/member/member.js"></script>
 	<script defer src="../../js/script.js"></script>
 </head>
+<script>
 
+
+
+
+
+
+
+
+
+
+</script>
 <body>
 	<div id="wrap">
 		<!-- s:container -->
@@ -30,9 +41,8 @@
 					<div class="h3-title gray">
 						<h3 class="normal"><i class="s-add"></i>제품별 단가 설정</h3>
 					</div>
-
                     <div class="rows mt30">
-                    <input type="hidden" name="id" value=${list[0]["ID"]}>
+                    <input type="hidden" name="id" id="id" value=${list[0]["id"]}>
                         <!-- tab -->
                         <ul class="tabs">
                         <c:forEach items="${productNameList}" var="product" varStatus="status">                        
@@ -73,19 +83,20 @@
 							</thead>
 							<tbody>
 							<c:forEach items="${list}" var="data" varStatus="status">
+
 <%-- 								<c:if test="${product eq list[status.index]['PRODUCT_NM']}">	 --%>
 								<tr class="${list[status.index]['PRODUCT_NM']}" name="${list[status.index]['PRODUCT_NM']}">						
 									<td><input type="checkbox" name="chk" value="Y" >
-										<input type="hidden" name="productCd" value="${list[status.index]['PRODUCT_CD']}">
-										<input type="hidden" name="thickness" value="${list[status.index]['THICKNESS']}">
-										<input type="hidden" name="size" value="${list[status.index]['SIZE']}">
+										<input type="hidden" name="productIdx" value="${list[status.index]['PRODUCT_IDX']}">
+										<input type="hidden" name="thicknessIdx" value="${list[status.index]['THICKNESS_IDX']}">
+										<input type="hidden" name="sizeIdx" value="${list[status.index]['SIZE_IDX']}">
 										<input type="hidden" name="height" value="${list[status.index]['HEIGHT']}">
 										<input type="hidden" name="width" value="${list[status.index]['WIDTH']}">
 									</td>
-									<td>${list[status.index]["PRODUCT_CD"]}</td>
+									<td>${list[status.index]["THICKNESS"]}${list[status.index]["SIZE"]}-${list[status.index]["PRODUCT_CD"]}</td>
 									<td>${list[status.index]["THICKNESS"]}</td>
 									<td>${list[status.index]["SIZE"]} (${list[status.index]["HEIGHT"]} x ${list[status.index]["WIDTH"]})</td>
-									<td><input type="text" class="wd100 txt-right" placeholder="0" name="price"> </td>
+									<td><input type="text" class="wd100 txt-right" placeholder="0" name="price" value="${list[status.index]['PRICE']}"> </td>
 								</tr>
 <%-- 								</c:if> --%>
 							</c:forEach>

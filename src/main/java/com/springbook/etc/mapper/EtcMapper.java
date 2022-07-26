@@ -1,20 +1,18 @@
 package com.springbook.etc.mapper;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.springbook.etc.vo.CreditVO;
 import com.springbook.etc.vo.JoinAskVO;
+import com.springbook.etc.vo.ProductDetailVO;
 import com.springbook.etc.vo.ProductSizeVO;
 import com.springbook.etc.vo.ProductThicknessVO;
 import com.springbook.etc.vo.ProductVO;
 import com.springbook.etc.vo.WarehouseInventoryVO;
 import com.springbook.etc.vo.WarehouseStockVO;
 import com.springbook.etc.vo.WarehouseVO;
-import com.springbook.etc.vo.ProductDetailVO;
 import com.springbook.member.vo.MemberVO;
 
 @Mapper
@@ -100,10 +98,6 @@ public interface EtcMapper {
 
 	List<Map<String, Object>> getSafetyList(Map<String, Object> map);
 
-	int creditListCount(Map<String, Object> map);
-
-	List<Map<String, Object>> getCreditList(Map<String, Object> map);
-
 	List<MemberVO> memberList();
 
 	List<Map<String, Object>> getInventoryHistory(Map<String, Object> map);
@@ -162,5 +156,9 @@ public interface EtcMapper {
 	int checkProductThickness(ProductThicknessVO vo);
 
 	int checkProductSize(ProductSizeVO vo);
+
+	List<Map> selectAllThickness(String name);
+
+	List<Map> selectAllSize(String name);
 
 }

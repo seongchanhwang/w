@@ -33,7 +33,7 @@
 					<a href="#">홍길동</a>
 					<p>회사명</p>
 				</div>
-				<a href="#" class="logout">로그아웃</a>
+				<a href="javascript:void(0)" onclick="logout()" id="logout" class="logout">로그아웃</a>
 				<div class="d-flex">
 					<button class="mem-edit" onclick="location.href='goMasterInfoEdti'">개인정보</button>
 					<button class="alarm-list">알림 목록</button>
@@ -46,7 +46,6 @@
 					<li class="uk-parent">
 						<a href="220_order_manage.html">주문관리 </a>
 						<ul class="uk-nav-sub" hidden="">
-							<li><a onclick="location.href='goOrderManage.do'">- 재고조회</a></li>
 							<li><a href="#">- 주문현황</a></li>
 							<li><a href="#">- 직송현황</a></li>
 							<li><a href="#">- 예약내역</a></li>
@@ -67,7 +66,7 @@
 					<li class="uk-parent">
 						<a href="240_etc_manage.html">기타관리</a>
 						<ul class="uk-nav-sub" hidden="">
-							<li><a href="240_etc_manage.html">- 준공서류 관리</a></li>
+							<li><a onclick="location.href='goEtcManage.do'"">- 준공서류 관리</a></li>
 							<li><a href="241_all_warehouse.html">- 전체 출/입고 현황</a></li>
 							<li><a onclick="location.href='warehouseManage.do'">- 창고관리</a></li>		
 							<li><a onclick="location.href='goInvetoryManage.do'">- 창고별 재고관리</a></li>

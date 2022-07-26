@@ -290,4 +290,15 @@
 		WHERE
 			ID = #{id} 
 	</update>
+	
+	<!--사용자 가격이 있는지 조회 -->
+	<select id="getClientPrice" parameterType="Map" resultType="java.lang.String">
+		SELECT 
+			PRICE
+		FROM	
+			PRICE  
+		WHERE
+			ID = #{id} AND THICKNESS = #{THICKNESS_IDX} AND SIZE = #{SIZE_IDX} AND PRODUCT_IDX = #{PRODUCT_IDX}
+			
+	</select>
 </mapper>

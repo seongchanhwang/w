@@ -398,7 +398,27 @@
    		</if> 
 		LIMIT #{i}, #{contentnum}
 	</select>		
-	
+
+	<!--모든 따른 제품두께 조회 -->
+	<select id="selectAllThickness" resultType="Map" parameterType="java.lang.String">
+		SELECT
+		*
+		FROM
+		PRODUCT_THICKNESS
+		WHERE
+		PRODUCT_IDX = #{name}
+	</select>
+
+	<!--모든 따른 제품두께 조회 -->
+	<select id="selectAllSize" resultType="Map" parameterType="java.lang.String">
+		SELECT
+		*
+		FROM
+		PRODUCT_SIZE
+		WHERE
+		PRODUCT_IDX = #{name}
+	</select>
+			
 	<!--제품명에 따른 제품두께 조회 -->
 	<select id="selectDetailThickness" resultType="Map" parameterType="java.lang.String">
 		SELECT

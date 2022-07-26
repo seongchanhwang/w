@@ -27,7 +27,7 @@ public interface MemberMapper {
 
 	int typeProductListCount(String keyword);
 
-	List<MemberVO> getTypeProductList(Map<String, Object> map);
+	List<Map<String, Object>> getTypeProductList(Map<String, Object> map);
 
 	int addPrice(Map<String, Object> map);
 
@@ -44,6 +44,8 @@ public interface MemberMapper {
 	/*MemberVO findMemberByEmail(@Param("email")String email);*/
 
 	int modfiyPassword(@Param("id")String id, @Param("password")String encodedPassword);
+
+	String getClientPrice(Map<String, Object> map);
 
 
 }

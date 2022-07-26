@@ -69,7 +69,7 @@
 					<li class="uk-parent uk-open">
 						<a href="240_etc_manage.html">기타관리</a>
 						<ul class="uk-nav-sub" hidden="">
-							<li><a href="240_etc_manage.html">- 준공서류 관리</a></li>
+							<li><a onclick="location.href='goEtcManage.do'"">- 준공서류 관리</a></li>
 							<li><a href="241_all_warehouse.html">- 전체 출/입고 현황</a></li>
 							<li><a onclick="location.href='warehouseManage.do'">- 창고관리</a></li>		
 							<li><a onclick="location.href='goInvetoryManage.do'">- 창고별 재고관리</a></li>
@@ -131,7 +131,7 @@
 							<colgroup>
 								<col class="wd3">
 								<col class="wd6">
-								<col class="wd12">
+								<col class="wd15">
 								<col class="wd15">
 								<col>
 								<col class="wd10">

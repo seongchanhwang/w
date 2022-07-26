@@ -19,7 +19,56 @@
 	<script src="../../../js/etc/product.js"></script>
 	<script defer src="../../js/script.js"></script>
 </head>
+<script>
+/*제품상세등록 제품명 바뀔 때 두께 조회해오기*/
+function detailNmChangeAll(){
+	var name = $("#productIdx").val();
+	$("#thickness").children().remove();
+	$("#size").children().remove();
+	$.ajax({
+		url: "selectAllThickness.do",
+		data: {"name":name},
+		type: "POST",
+		success : function(data){
+	    	$("#thickness").append('<option value="">제품두께 선택</option>');
+	    	$("#size").append('<option value="">제품사이즈 선택</option>');
+	    	console.log(data);
+		    for (var i in data.thickness) {
+		    	var custom = '';
+		    	if(data.thickness[i].CUSTOM_ORDER == 'Y'){
+		    		custom = " (주문제작)";
+		    	}
+		    	var child = "<option value="+data.thickness[i].THICKNESS_IDX+">"+data.thickness[i].THICKNESS+custom+"</option>;";
+		    	$("#thickness").append(child);
+		      }
+		    
+		    for (var i in data.size) {
+		    	var custom = '';
+		    	if(data.size[i].CUSTOM_ORDER == 'Y'){
+		    		custom = " (주문제작)";
+		    	}
+		    	var size = "("+data.size[i].HEIGHT + "*" + data.size[i].WIDTH +")";
+		    	var child = "<option value="+data.size[i].SIZE_IDX+">"+data.size[i].SIZE+size+custom+"</option>;";
+		    	$("#size").append(child);
+		      }
+		    console.log($("#origSize").val());
+		    console.log($("#origThickness").val());
+		    console.log("origSizeVAll")
+		    if($('#origThickness').length > 0){				
+				$("#thickness").val($("#origThickness").val()).prop("selected", true);
+				$("#size").val($("#origSize").val()).prop("selected", true);	
+		    }
 
+		},
+		error : function(){
+			alert("에러가 발생했습니다.");		
+		}
+	});
+}
+
+
+
+</script>
 <body>
 	<div id="wrap">
 		<!-- header -->
@@ -69,7 +118,7 @@
 					<li class="uk-parent uk-open">
 						<a href="240_etc_manage.html">기타관리</a>
 						<ul class="uk-nav-sub" hidden="">
-							<li><a href="240_etc_manage.html">- 준공서류 관리</a></li>
+							<li><a onclick="location.href='goEtcManage.do'"">- 준공서류 관리</a></li>
 							<li><a href="241_all_warehouse.html">- 전체 출/입고 현황</a></li>
 							<li><a onclick="location.href='warehouseManage.do'">- 창고관리</a></li>		
 							<li><a onclick="location.href='goInvetoryManage.do'">- 창고별 재고관리</a></li>
@@ -108,7 +157,7 @@
                         <dl class="row col-2">
                             <dt>제품명 <i class="essen"> *</i></dt>
                             <dd>
-								<select name="productIdx" id="productIdx" class="wd210p" onchange=detailNmChange()>
+								<select name="productIdx" id="productIdx" class="wd210p" onchange=detailNmChangeAll()>
 									<option value="">--선택--</option>
 									<c:forEach items="${productList}" var="list" varStatus="status">
 									<option value="${list.productIdx}">${list.productNm}</option>
