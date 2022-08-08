@@ -14,17 +14,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class SessionManager {
 	
-	Map<String,Object> store = new HashMap<>();
+	static Map<String,Object> store = new HashMap<>();
 	
 	public void createSession(String value, HttpServletResponse response) {
 		String token = UUID.randomUUID().toString();
 		store.put(token, value);
 		Cookie cookie = new Cookie(SessionConst.SESSION_ID,token);
+		cookie.setMaxAge(100*60);
 		response.addCookie(cookie);
 		
 	}
 
-	public String getSession(HttpServletRequest request) {
+	public static String getSession(HttpServletRequest request) {
 		Cookie sessionCookie = findCookie(request);
 		if(sessionCookie == null){
 			return null ; 
@@ -32,7 +33,7 @@ public class SessionManager {
 		return (String)store.get(sessionCookie.getValue());
 	}
 
-	private Cookie findCookie(HttpServletRequest request) {
+	private static Cookie findCookie(HttpServletRequest request) {
 		if(request.getCookies() == null){
 			return null;
 		}

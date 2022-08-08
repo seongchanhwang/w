@@ -14,3 +14,12 @@ function isEmpty(str) {
 		return false;
 
 }
+
+function valid(){
+		
+	
+	
+	
+	
+	
+}

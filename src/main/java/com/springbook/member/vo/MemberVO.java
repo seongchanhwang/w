@@ -31,4 +31,5 @@ public class MemberVO {
 	private String warehouse;
 	private String delYn;
 	private Date regDate;
+	private String ceoBirth; 
 }
