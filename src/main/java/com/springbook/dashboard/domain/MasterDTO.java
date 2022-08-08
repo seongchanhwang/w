@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MasterDTO {
 	
+	private String id;
 	private String nowPw;
 	private String chgPw;
 	private String chgPw2;

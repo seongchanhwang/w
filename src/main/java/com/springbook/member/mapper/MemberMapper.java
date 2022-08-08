@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.springbook.dashboard.domain.MasterDTO;
 import com.springbook.member.vo.MemberVO;
 
 @Mapper
@@ -46,6 +47,14 @@ public interface MemberMapper {
 	int modfiyPassword(@Param("id")String id, @Param("password")String encodedPassword);
 
 	String getClientPrice(Map<String, Object> map);
+
+	/**
+	 * 마스터 정보 수정 
+	 * 
+	 * @param masterInfo
+	 * @return
+	 */
+	int modifyMasterInfo(MasterDTO masterInfo);
 
 
 }

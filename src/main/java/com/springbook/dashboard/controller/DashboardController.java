@@ -55,8 +55,6 @@ public class DashboardController {
 		return "dashboard/dashboard_sales_part";
 	}	
 	
-	
-
 	//주문현황 이동
 	@GetMapping("/goMasterInfoEdit.do")    
 	public ModelAndView goMasterInfoEdit(HttpServletRequest request ,  ModelAndView mv) {
@@ -70,10 +68,13 @@ public class DashboardController {
 	
 	@PutMapping("/master")
 	@ResponseBody
-	public ResponseEntity<String> editMaster(@RequestBody MasterDTO master){
-		log.info("master = {}",master);
-		return new ResponseEntity<>("chit",HttpStatus.OK);
-		
+	public ResponseEntity<String> editMaster(MasterDTO masterIfno) throws Exception{
+		log.info("masterIfno = {}",masterIfno);
+		int result = memberService.modifyMasterInfo(masterIfno);
+		if(result > 0 ){
+			return new ResponseEntity<>("정보 수정 완료되었습니다.",HttpStatus.OK);
+		}
+			return new ResponseEntity<>("비밀번호를 확인해 주세요.", HttpStatus.BAD_REQUEST);
 	}
 }
 

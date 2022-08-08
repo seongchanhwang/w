@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
+import com.springbook.dashboard.domain.MasterDTO;
 import com.springbook.member.mapper.MemberMapper;
 import com.springbook.member.service.MemberService;
 import com.springbook.member.vo.MemberVO;
@@ -46,28 +47,27 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public ResponseEntity<MemberVO> tryLogin(MemberVO vo,HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		String enpassword = DataScrty.encryptPassword(vo.getPassword(),vo.getId());
+	public ResponseEntity<MemberVO> tryLogin(MemberVO vo, HttpServletRequest request, HttpServletResponse response)
+			throws Exception {
+
+		String enpassword = DataScrty.encryptPassword(vo.getPassword(), vo.getId());
 		vo.setPassword(enpassword);
 		MemberVO member = memberMapper.tryLogin(vo);
-		
-		log.info("member={}",member);
-		if(hasMember(member)){
+
+		log.info("member={}", member);
+		if (hasMember(member)) {
 			log.debug("성공");
-			sessionManager.createSession(member.getId(), response); 
-			return new ResponseEntity<MemberVO>(member,HttpStatus.OK); 
+			sessionManager.createSession(member.getId(), response);
+			return new ResponseEntity<MemberVO>(member, HttpStatus.OK);
 		} else {
 			log.debug("실패");
 			return new ResponseEntity<MemberVO>(HttpStatus.BAD_REQUEST);
 		}
-		
-		
 
 	}
 
 	private boolean hasMember(MemberVO member) {
-		if (member != null &&!member.getId().equals("")) {
+		if (member != null && !member.getId().equals("")) {
 			return true;
 		} else {
 			return false;
@@ -162,28 +162,26 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public MemberVO checkEmailBy(String userId) {
 		return memberMapper.findMemberById(userId);
-		/*if (isEmail(userId))
-			return memberMapper.findMemberByEmail(userId);
-		else
-			return memberMapper.findMemberById(userId);*/
+		/*
+		 * if (isEmail(userId)) return memberMapper.findMemberByEmail(userId);
+		 * else return memberMapper.findMemberById(userId);
+		 */
 	}
 
 	/**
 	 * userId인지 이메일인지 체크
+	 * 
 	 * @param userId
 	 * @return
 	 */
-	/*private boolean isEmail(String userId) {
-		if (userId.contains("@"))
-			return true;
-		else {
-			return false;
-		}
-	}*/
+	/*
+	 * private boolean isEmail(String userId) { if (userId.contains("@")) return
+	 * true; else { return false; } }
+	 */
 
 	@Override
 	public void modifyPassword(MemberVO member) throws Exception {
-		String enpassword = DataScrty.encryptPassword(member.getPassword(),member.getId());
+		String enpassword = DataScrty.encryptPassword(member.getPassword(), member.getId());
 		int result = memberMapper.modfiyPassword(member.getId(), enpassword);
 		log.debug("modify passwrod result = {}", result);
 	}
@@ -191,29 +189,29 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public String checkSession(HttpServletRequest request, Model model) {
 		String memberId = sessionManager.getSession(request);
-		log.info("memberId = {}",memberId);
-		if(memberId == null){
+		log.info("memberId = {}", memberId);
+		if (memberId == null) {
 			return "index";
 		}
-		
+
 		MemberVO member = memberMapper.findMemberById(memberId);
-		if(member == null) {
+		if (member == null) {
 			return "index";
 		}
-		model.addAttribute("member",member);
+		model.addAttribute("member", member);
 		return "redirect:/memberList.do";
 	}
 
 	@Override
-	public String logout(HttpServletRequest request , HttpServletResponse response) {
+	public String logout(HttpServletRequest request, HttpServletResponse response) {
 		HttpSession session = request.getSession(false);
-		
-		if(session == null){
+
+		if (session == null) {
 			return "redirect:/";
 		}
 		sessionManager.exprieSession(response);
-		session.invalidate();		
-		
+		session.invalidate();
+
 		return "redirect:/";
 	}
 
@@ -221,11 +219,24 @@ public class MemberServiceImpl implements MemberService {
 	public String getClientPrice(Map<String, Object> map, String id) {
 		// TODO Auto-generated method stub
 		System.out.println(map);
-//		System.out.println(id.);
+		// System.out.println(id.);
 		map.put("id", id);
 		System.out.println("getClientPrice");
 		System.out.println(map);
 		return memberMapper.getClientPrice(map);
+	}
+
+	@Override
+	public int modifyMasterInfo(MasterDTO masterInfo) throws Exception {
+		masterInfo.setNowPw(DataScrty.encryptPassword(masterInfo.getNowPw(), masterInfo.getId()));
+		// 변경할 비밀번호와 비밀번호 확인 비교 시 참인경우
+		if (masterInfo.getChgPw().equals(masterInfo.getChgPw2())) {
+			masterInfo.setChgPw(DataScrty.encryptPassword(masterInfo.getChgPw(), masterInfo.getId()));
+			return memberMapper.modifyMasterInfo(masterInfo);
+		} else {
+			return 0; 
+		}
+
 	}
 
 }

@@ -108,26 +108,26 @@
 									아이디 <i class="essen">*</i>
 								</dt>
 								<dd>
-									<input type="text" class="wd210p disable" value="${Member.id}"
+									<input type="text" class="wd210p disable" name="id" value="${Member.id}"
 										readonly>
 								</dd>
 							</dl>
 							<dl class="row col-2">
 								<dt>현재 비밀번호</dt>
 								<dd>
-									<input name="nowPw" type="password" class="wd210p" required>
+									<input id="nowPw" name="nowPw" type="password" class="wd210p" required>
 								</dd>
 							</dl>
 							<dl class="row col-2">
 								<dt>변경할 비밀번호</dt>
 								<dd>
-									<input name="chgPw" type="password" class="wd210p" required>
+									<input id="chgPw" name="chgPw" type="password" class="wd210p" required>
 								</dd>
 							</dl>
 							<dl class="row col-2">
 								<dt>비밀번호 확인</dt>
 								<dd>
-									<input type="password" class="wd210p" required>
+									<input id="chgPw2" name="chgPw2" type="password" class="wd210p" required>
 								</dd>
 							</dl>
 						</article>

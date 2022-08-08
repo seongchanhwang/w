@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 
+import com.springbook.dashboard.domain.MasterDTO;
 import com.springbook.member.vo.MemberVO;
 
 public interface MemberService {
@@ -73,6 +74,8 @@ public interface MemberService {
 
 	//고객가격조회
 	String getClientPrice(Map<String, Object> map, String id);
+	
+	public int modifyMasterInfo(MasterDTO masterIfno) throws Exception;
 
 
 }

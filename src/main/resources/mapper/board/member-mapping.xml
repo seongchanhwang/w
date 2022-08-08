@@ -301,4 +301,27 @@
 			ID = #{id} AND THICKNESS = #{THICKNESS_IDX} AND SIZE = #{SIZE_IDX} AND PRODUCT_IDX = #{PRODUCT_IDX}
 			
 	</select>
+	
+	<update id="modifyMasterInfo" parameterType="com.springbook.dashboard.domain.MasterDTO">
+		UPDATE
+			MEMBER
+		SET 
+			COMPANY_NM = CONCAT(#{companyNm1},',',#{companyNm2})
+			, PASSWORD = #{chgPw}
+			, CEO_NM = CONCAT(#{ceoNm1},',',#{ceoNm2})
+			, BUSINESS_NUM = CONCAT(#{businessNum1},',',#{businessNum2}) 
+			, COMPANY_PHONE_NUM = CONCAT(#{companyPhoneNum1},',',#{companyPhoneNum2})
+			, FAX_NUM = CONCAT(#{faxNum1},',',#{faxNum2})
+			, ADDR1 = CONCAT(#{addr11},',',#{addr12})
+			, ADDR2 = CONCAT(#{addr21},',',#{addr22})
+			, EMAIL1 = CONCAT(#{email11},',',#{email12})
+			, EMAIL2 = CONCAT(#{email21},',',#{email22})
+			, CEO_BIRTH = CONCAT(#{ceoBirth1},',',#{ceoBirth2})
+			, SPECIAL_MESSAGE = CONCAT(#{specialMessage1},',',#{specialMessage2})
+		WHERE
+			ID = #{id} AND PASSWORD = #{nowPw}
+	</update>
+	
+	
+	
 </mapper>
