@@ -101,7 +101,6 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public MemberVO getMemberInfo(String id) {
-		// TODO Auto-generated method stub
 		return memberMapper.getMemberInfo(id);
 	}
 

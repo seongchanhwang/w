@@ -17,6 +17,9 @@ import com.springbook.vo.ProductVO;
 import com.springbook.warehousing.mapper.WarehousingMapper;
 import com.springbook.warehousing.service.WarehousingService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service("commonService")
 public class CommonServiceImpl implements CommonService {
 
@@ -77,7 +80,7 @@ public class CommonServiceImpl implements CommonService {
 	 */
 	@Override
 	public List<JusoVO> getSido() throws Exception{
-		System.out.println("dddddgetSIDOD");
+		log.info("dddddgetSIDOD");
 		return commonMapper.getSido();
 	}
 	
